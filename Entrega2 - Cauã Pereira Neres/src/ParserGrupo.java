@@ -1,45 +1,3 @@
-/**
- * Parser recursivo descendente do grupo.
- *
- * Gramática implementada nesta etapa:
- *
- * Programa          ::= { DeclaracaoTopo } EOF
- * DeclaracaoTopo    ::= TipoRetorno IDENTIFICADOR SufixoDeclaracao
- * TipoRetorno       ::= Tipo | 'void'
- * SufixoDeclaracao  ::= '(' ParametrosOpt ')' Bloco
- *                     | InicializacaoOpt ';'
- * ParametrosOpt     ::= Parametro { ',' Parametro } | epsilon
- * Parametro         ::= Tipo IDENTIFICADOR
- * Tipo              ::= 'int' | 'double' | 'bool' | 'char' | 'string'
- * InicializacaoOpt  ::= '=' Expressao | epsilon
- *
- * Bloco             ::= '{' { DeclaracaoVariavel | Comando } '}'
- * DeclaracaoVariavel ::= Tipo IDENTIFICADOR InicializacaoOpt ';'
- * Comando           ::= Bloco
- *                     | 'if' '(' Expressao ')' Bloco ElseOpt
- *                     | 'while' '(' Expressao ')' Bloco
- *                     | 'return' ExpressaoOpt ';'
- *                     | IDENTIFICADOR SufixoComando
- * SufixoComando     ::= '=' Expressao ';'
- *                     | '(' ArgumentosOpt ')' ';'
- * ElseOpt           ::= 'else' Bloco | epsilon
- * ExpressaoOpt      ::= Expressao | epsilon
- * ArgumentosOpt     ::= Expressao { ',' Expressao } | epsilon
- *
- * Expressao         ::= Disjuncao
- * Disjuncao         ::= Conjuncao { '||' Conjuncao }
- * Conjuncao         ::= Igualdade { '&&' Igualdade }
- * Igualdade         ::= Relacional { ('==' | '!=') Relacional }
- * Relacional        ::= Aditiva { ('<' | '>' | '<=' | '>=') Aditiva }
- * Aditiva           ::= Multiplicativa { ('+' | '-') Multiplicativa }
- * Multiplicativa    ::= Unaria { ('*' | '/' | '%') Unaria }
- * Unaria            ::= ('+' | '-') Unaria | Primaria
- * Primaria          ::= LITERAL_NUMERICO | STRING | IDENTIFICADOR
- *                     | IDENTIFICADOR '(' ArgumentosOpt ')'
- *                     | '(' Expressao ')' | 'true' | 'false'
- *
- * Scanner.java, Token.java e TokenType.java permanecem sem alterações.
- */
 public final class ParserGrupo extends ParserGrupoTemplate {
 
     private static final SyncSet FOLLOW_PROGRAMA =
@@ -291,7 +249,7 @@ public final class ParserGrupo extends ParserGrupoTemplate {
     }
 
     private void parseComandoIdentificador() {
-        advance(); // IDENTIFICADOR
+        advance();
 
         if (isLexeme("=")) {
             advance();
@@ -436,7 +394,6 @@ public final class ParserGrupo extends ParserGrupoTemplate {
             return;
         }
 
-        // O scanner do CP1 reconhece true/false como identificadores.
         if (isOneOfLexemes("true", "false")) {
             advance();
             return;
@@ -463,10 +420,6 @@ public final class ParserGrupo extends ParserGrupoTemplate {
 
         report("esperada expressão; encontrado '" + lexeme() + "'");
 
-        /*
-         * Se o lookahead já pertence ao FOLLOW da expressão, preserva-o
-         * para que o chamador consuma ';', ')', ',' ou '}'.
-         */
         if (!isIn(FOLLOW_EXPRESSAO) && tokenType() != TokenType.EOF) {
             synchronize(FOLLOW_EXPRESSAO);
         }
